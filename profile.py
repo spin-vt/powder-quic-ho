@@ -240,8 +240,10 @@ else:
 cmd = "{} '{}'".format(SRSRAN_DEPLOY_SCRIPT, srsran_hash)
 cudu.addService(pg.Execute(shell="bash", command=cmd))
 cudu.addService(pg.Execute(shell="bash", command="/local/repository/bin/tune-sdr-iface.sh"))
-cudu.addService(pg.Execute(shell="bash", command="/local/repository/bin/update-attens ru1ue 0"))
-cudu.addService(pg.Execute(shell="bash", command="/local/repository/bin/update-attens ru2ue 95"))
+cudu.addService(pg.Execute(shell="bash", command="/local/repository/bin/update-attens ru1ue1 0"))
+cudu.addService(pg.Execute(shell="bash", command="/local/repository/bin/update-attens ru2ue1 95"))
+cudu.addService(pg.Execute(shell="bash", command="/local/repository/bin/update-attens ru1ue2 95"))
+cudu.addService(pg.Execute(shell="bash", command="/local/repository/bin/update-attens ru2ue2 95"))
 
 node_name = "sdru"
 sdru = request.RawPC("{}-sdr".format(node_name))
