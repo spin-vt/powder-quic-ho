@@ -44,14 +44,14 @@ sudo numactl --membind 0 --cpubind 0 \
   -c /var/tmp/etc/srsran/slicing.yml
 ```
 
-In a session on the `ue` node, start the UE connection manager with the target DNN `internet` in `ipv4` mode:
+In a session on the `ue1` node, start the UE connection manager with the target DNN `internet` in `ipv4` mode:
 
 ```
 # on the ue node
 sudo quectel-CM -s internet -4
 ```
 
-In aother session on the `ue` node, bring the COTS UE out of airplane mode:
+In aother session on the `ue1` node, bring the COTS UE out of airplane mode:
 
 ```
 # on the ue node
@@ -71,7 +71,7 @@ At this point the UE should attach to the gNB via the first DU/RU pair. (This pr
    1 4604 |  15   1   27   4.8k    5    0   0%      0 |  36.3  -5.0   28    22k    5    0   0%      0   0us   24
 ```
 
-In a session on the `ue` node, start a ping process pointed at the core network UPF, so we can verify that traffic still passes throughout the handover process:
+In a session on the `ue1` node, start a ping process pointed at the core network UPF, so we can verify that traffic still passes throughout the handover process:
 
 ```
 # on ue node
@@ -82,7 +82,7 @@ Now that there is some traffic being generated, lets trigger an intra-gNB handov
 
 ```
 # on any node in the experiment
-/local/repository/bin/handover ru2
+/local/repository/bin/handover ue1 ru2
 ```
 
 You should see the PCI for the attached UE change to 2 in the output of the gNB process, indicating a handover to DU/RU...
@@ -102,16 +102,16 @@ You should see the PCI for the attached UE change to 2 in the output of the gNB 
 
 ```
 # on any node in the experiment
-/local/repository/bin/handover ru1
+/local/repository/bin/handover ue1 ru1
 ```
 
-The `rumncmp` and `uemncmp` nodes and acompanying SDRs are included to allow for, e.g.:
+The `uemncmp` node and acompanying SDR is included to allow for, e.g.:
 
 - realtime monitoring of 5G transmissions
-- injecting interference in the DL or UL paths
-- recording samples of DL and/or UL transmissions for data gathering purposes
+- injecting interference in the DL path
+- recording samples of UL transmissions for data gathering purposes
 
-GnuRadio and UHD tools are installed on these nodes.
+GnuRadio and UHD tools are installed on this nodes.
 
 
 """
