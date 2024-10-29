@@ -168,7 +168,7 @@ pc.defineParameter(
 
 pc.defineParameter(
     name="mon_nodetype",
-    description="Type of compute node paired with the RU SDR",
+    description="Type of compute node paired with the monitoring SDR",
     typ=portal.ParameterType.STRING,
     defaultValue=node_types[0],
     legalValues=node_types
