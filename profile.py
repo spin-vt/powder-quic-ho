@@ -12,28 +12,22 @@ import geni.rspec.emulab as emulab
 tourDescription = """
 ### srsRAN 5G Handover using the Programmable Attenuator Matrix
 
-This profile instantiates a 5G network with srsRAN and Open5GS on POWDER in a
-conducted RF evironment with programmable attenuators for emulating handover
-scenarios.
+This profile instantiates a 5G network with srsRAN and Open5GS on POWDER in a conducted RF evironment with programmable attenuators for emulating handover scenarios.
 
 The following will be deployed:
 - Open5GS CN node (Dell R430)
 - srsRAN CU/DU node (Dell R740 + USRP X310 w/ 2x UBX-160 daughter cards)
   - the two daughter cards will be used for separate DU/RU pairs and intra-gNB handover
-- DL monitoring node (Dell R430 + USRP N300)
 - UL monitoring node (Dell R430 + USRP N300)
-- UE node (Intel NUC w/ COTS UE)
+- 2 UE nodes (Intel NUC w/ COTS UE)
 
 """
 
 tourInstructions = """
 
-Startup scripts will still be running when your experiment becomes ready. Watch
-the "Startup" column on the "List View" tab for your experiment and wait until
-all of the compute nodes show "Finished" before proceeding.
+Startup scripts will still be running when your experiment becomes ready. Watch the "Startup" column on the "List View" tab for your experiment and wait until all of the compute nodes show "Finished" before proceeding.
 
-Once the experiment is ready, you can log into the Open5GS CN node (`cn5g`) and
-monitor the AMF and SMF logs:
+Once the experiment is ready, you can log into the Open5GS CN node (`cn5g`) and monitor the AMF and SMF logs:
 
 ```
 # on the cn5g node
@@ -50,8 +44,7 @@ sudo numactl --membind 0 --cpubind 0 \
   -c /var/tmp/etc/srsran/slicing.yml
 ```
 
-In a session on the `ue` node, start the UE connection manager with the target
-DNN `internet` in `ipv4` mode:
+In a session on the `ue` node, start the UE connection manager with the target DNN `internet` in `ipv4` mode:
 
 ```
 # on the ue node
@@ -65,12 +58,7 @@ In aother session on the `ue` node, bring the COTS UE out of airplane mode:
 /local/repository/bin/module-on.sh
 ```
 
-At this point the UE should attach to the gNB via the first DU/RU pair. (This
-profile initializes the state of the programmable attenuators such that the
-paths between DU/RU 1 and the COTS UE have the minimum attenuation, while the
-paths terminating at DU/RU 2 have the maximum attenuation.) The physical cell ID
-(PCI) for this DU/RU pair is 1, as indicated in the output of the srsRAN gNB
-process...
+At this point the UE should attach to the gNB via the first DU/RU pair. (This profile initializes the state of the programmable attenuators such that the paths between DU/RU 1 and the COTS UE have the minimum attenuation, while the paths terminating at DU/RU 2 have the maximum attenuation.) The physical cell ID (PCI) for this DU/RU pair is 1, as indicated in the output of the srsRAN gNB process...
 
 ```
 # output of srsran gnb process on cudu node
@@ -83,27 +71,21 @@ process...
    1 4604 |  15   1   27   4.8k    5    0   0%      0 |  36.3  -5.0   28    22k    5    0   0%      0   0us   24
 ```
 
-In a session on the `ue` node, start a ping process pointed at the core network
-UPF, so we can verify that traffic still passes throughout the handover process:
+In a session on the `ue` node, start a ping process pointed at the core network UPF, so we can verify that traffic still passes throughout the handover process:
 
 ```
 # on ue node
 ping 10.45.0.1
 ```
 
-Now that there is some traffic being generated, lets trigger an intra-gNB
-handover by incrementally adjusting the attenuations such that the paths between
-DU/RU 1 and the UE become more attenuated, while the paths terminating at CU/DU
-2 become less attenuated, eventully resulting in a higher quality channel
-between the UE and DU/RU 2. You can use the included helper script to do this:
+Now that there is some traffic being generated, lets trigger an intra-gNB handover by incrementally adjusting the attenuations such that the paths between DU/RU 1 and the UE become more attenuated, while the paths terminating at CU/DU 2 become less attenuated, eventully resulting in a higher quality channel between the UE and DU/RU 2. You can use the included helper script to do this:
 
 ```
 # on any node in the experiment
 /local/repository/bin/handover ru2
 ```
 
-You should see the PCI for the attached UE change to 2 in the output of the gNB
-process, indicating a handover to DU/RU...
+You should see the PCI for the attached UE change to 2 in the output of the gNB process, indicating a handover to DU/RU...
 
 ```
           |--------------------DL---------------------|-------------------------UL------------------------------
@@ -145,14 +127,14 @@ SRSRAN_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-srsran.sh")
 NODE_IDS = {
     "sdru": "x310-1",
     "uemon": "n300-2",
-    "ue": "nuc27",
-    "rumon": "n300-1",
+    "ue1": "nuc27",
+    "ue2": "nuc22",
 }
 MATRIX_GRAPH = {
-    "sdru": ["ue", "rumon"],
-    "uemon": ["ue", "rumon"],
-    "ue": ["sdru", "uemon"],
-    "rumon": ["sdru", "uemon"],
+    "sdru": ["ue1", "ue2"],
+    "uemon": ["ue1", "ue2"],
+    "ue1": ["sdru", "uemon"],
+    "ue2": ["sdru", "uemon"],
 }
 MATRIX_INPUTS = ["sdru", "uemon"]
 RF_IFACES = {}
@@ -292,41 +274,26 @@ sdr_link.addNode(uemon)
 uemon.Desire("rf-controlled", 1)
 matrix_nodes[node_name] = uemon
 
-node_name = "rumncmp"
-rumncmp = request.RawPC(node_name)
-rumncmp.component_manager_id = COMP_MANAGER_ID
-rumncmp.hardware_type = params.mon_nodetype
-if params.sdr_compute_image:
-    rumncmp.disk_image = params.sdr_compute_image
-else:
-    rumncmp.disk_image = UBUNTU_IMG
-node_sdr_if = rumncmp.addInterface("{}-sdr-if".format(node_name))
-node_sdr_if.addAddress(pg.IPv4Address("192.168.10.1", "255.255.255.0"))
-sdr_link = request.Link("{}-sdr-link".format(node_name))
-sdr_link.bandwidth = 10*1000*1000
-sdr_link.addInterface(node_sdr_if)
-rumncmp.addService(pg.Execute(shell="bash", command="/local/repository/bin/tune-sdr-iface.sh"))
-rumncmp.addService(pg.Execute(shell="bash", command="/local/repository/bin/deploy-gnuradio.sh"))
-rumncmp.addService(pg.Execute(shell="bash", command="/local/repository/bin/update-attens rumon 0"))
+# ue nodes with COTS UE and B210
+node_name = "ue1"
+ue1 = request.RawPC(node_name)
+ue1.component_manager_id = COMP_MANAGER_ID
+ue1.component_id = NODE_IDS[node_name]
+ue1.disk_image = COTS_UE_IMG
+ue1.Desire("rf-controlled", 1)
+ue1.addService(pg.Execute(shell="bash", command="/local/repository/bin/module-airplane.sh"))
+ue1.addService(pg.Execute(shell="bash", command="/local/repository/bin/setup-cots-ue.sh internet"))
+matrix_nodes[node_name] = ue1
 
-
-node_name = "rumon"
-rumon = request.RawPC("{}-sdr".format(node_name))
-rumon.component_id = NODE_IDS[node_name]
-sdr_link.addNode(rumon)
-rumon.Desire("rf-controlled", 1)
-matrix_nodes[node_name] = rumon
-
-# ue node with COTS UE and B210
-node_name = "ue"
-ue = request.RawPC(node_name)
-ue.component_manager_id = COMP_MANAGER_ID
-ue.component_id = NODE_IDS[node_name]
-ue.disk_image = COTS_UE_IMG
-ue.Desire("rf-controlled", 1)
-ue.addService(pg.Execute(shell="bash", command="/local/repository/bin/module-airplane.sh"))
-ue.addService(pg.Execute(shell="bash", command="/local/repository/bin/setup-cots-ue.sh internet"))
-matrix_nodes[node_name] = ue
+node_name = "ue2"
+ue2 = request.RawPC(node_name)
+ue2.component_manager_id = COMP_MANAGER_ID
+ue2.component_id = NODE_IDS[node_name]
+ue2.disk_image = COTS_UE_IMG
+ue2.Desire("rf-controlled", 1)
+ue2.addService(pg.Execute(shell="bash", command="/local/repository/bin/module-airplane.sh"))
+ue2.addService(pg.Execute(shell="bash", command="/local/repository/bin/setup-cots-ue.sh internet"))
+matrix_nodes[node_name] = ue2
 
 rf_ifaces = {}
 for node_name, node in matrix_nodes.items():

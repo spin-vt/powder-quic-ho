@@ -3,11 +3,12 @@
 ATTEN_SCRIPT=/local/repository/bin/atten
 RU=$1
 ATTEN=$2
-RU1UE_PATHS=(17 18 49 50)
-RU2UE_PATHS=(19 20 51 52)
+RU1UE1_PATHS=(17 18 49 50)
+RU2UE1_PATHS=(19 20 51 52)
+RU1UE2_PATHS=(81 82 113 114)
+RU2UE2_PATHS=(83 84 115 116)
 UEMON_PATHS=(21 22 23 24 53 54 55 56 85 86 87 88 117 118 119 120)
-RUMON_PATHS=(81 82 83 84 85 86 87 88 113 114 115 116 117 118 119 120)
-ALL_PATHS=( ${RU1UE_PATHS[@]} ${RU2UE_PATHS[@]} ${UEMON_PATHS[@]} ${RUMON_PATHS[@]} )
+ALL_PATHS=( ${RU1UE1_PATHS[@]} ${RU2UE1_PATHS[@]} ${RU1UE2_PATHS[@]} ${RU2UE2_PATHS[@]} ${UEMON_PATHS[@]} )
 
 usage() {
     cat <<EOF
@@ -17,10 +18,11 @@ usage:
     update-attens <group> <attenval>
         set all matrix paths for <group> to <attenval>
         <group> can be one of:
-            ru1ue: paths from RU1 to UE
-            ru2ue: paths from RU2 to UE
-            uemon: paths from UE and RU monitor to UE monitor
-            rumon: paths from RU1, RU2, and UE monitor to RU monitor
+            ru1ue1: paths from RU1 to UE1
+            ru2ue1: paths from RU2 to UE1
+            ru1ue2: paths from RU1 to UE2
+            ru2ue2: paths from RU2 to UE2
+            uemon: paths from UE1 and UE2 to UE monitor
             all: all paths
         <attenval> and be in integer in [0..95]
         actual attenuation is 30+<attenval> dB
@@ -56,17 +58,20 @@ case $RU in
     -h)
         usage; exit 0
         ;;
-    ru1ue)
-        set_paths ${RU1UE_PATHS[@]}
+    ru1ue1)
+        set_paths ${RU1UE1_PATHS[@]}
         ;;
-    ru2ue)
-        set_paths ${RU2UE_PATHS[@]}
+    ru2ue1)
+        set_paths ${RU2UE1_PATHS[@]}
+        ;;
+    ru1ue2)
+        set_paths ${RU1UE2_PATHS[@]}
+        ;;
+    ru2ue2)
+        set_paths ${RU2UE2_PATHS[@]}
         ;;
     uemon)
         set_paths ${UEMON_PATHS[@]}
-        ;;
-    rumon)
-        set_paths ${RUMON_PATHS[@]}
         ;;
     all)
         set_paths ${ALL_PATHS[@]}
