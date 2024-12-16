@@ -31,10 +31,12 @@ sudo apt-get install -y \
   numactl \
   ppp
 
+
+## SRCDIR and SRS_PROJECT_REPO configured in common.sh
 cd $SRCDIR
 git clone $SRS_PROJECT_REPO
 cd srsRAN_Project
-git checkout $COMMIT_HASH
+# git checkout $COMMIT_HASH
 mkdir build
 cd build
 cmake ../

@@ -1,7 +1,15 @@
 #!/bin/bash
 
 # Exit on any error
-set -e
+set -ex
+
+BINDIR=`dirname $0`
+source $BINDIR/common.sh
+
+if [ -f $SRCDIR/srs-setup-complete ]; then
+  echo "setup already ran; not running again"
+  exit 0
+fi
 
 # Function to print messages
 function log {
@@ -46,3 +54,5 @@ cargo build --release
 
 log "Step 4: Build successful"
 echo "The quiche library has been built successfully. The compiled files are located in 'target/release/'."
+
+touch $SRCDIR/quiche-setup-complete
