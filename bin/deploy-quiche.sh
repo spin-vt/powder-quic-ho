@@ -37,11 +37,15 @@ else
 fi
 
 log "Step 2: Clone the quiche repository"
-# Clone the quiche repository
+# Define repository details
 QUICHE_REPO_URL="https://github.com/cloudflare/quiche.git"
-QUICHE_DIR="quiche"
+QUICHE_DIR="$SRCDIR/quiche"
+
+cd $SRCDIR
+
+# Clone the quiche repository if it does not already exist
 if [ ! -d "$QUICHE_DIR" ]; then
-    git clone $QUICHE_REPO_URL
+    git clone $QUICHE_REPO_URL $QUICHE_DIR
 else
     log "Repository already cloned. Pulling latest changes..."
     cd $QUICHE_DIR && git pull && cd ..
