@@ -57,6 +57,6 @@ maybe_add_quectel_cm () {
 
 install_ue_deps
 add_ue_app
-maybe_add_ue_metrics
-maybe_add_quectel_control
-maybe_add_quectel_cm
+# maybe_add_ue_metrics
+# maybe_add_quectel_control
+# maybe_add_quectel_cm

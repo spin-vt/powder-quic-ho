@@ -124,6 +124,7 @@ COMP_MANAGER_ID = "urn:publicid:IDN+emulab.net+authority+cm"
 DEFAULT_SRSRAN_HASH = "a15950301c5f3a1a166b79bb6c9ee901a4e8c2dd"
 OPEN5GS_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-open5gs.sh")
 SRSRAN_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-srsran.sh")
+QUICHE_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-quiche.sh")
 NODE_IDS = {
     "sdru": "x310-1",
     "uemon": "n300-2",
@@ -285,6 +286,7 @@ ue1.disk_image = COTS_UE_IMG
 ue1.Desire("rf-controlled", 1)
 ue1.addService(pg.Execute(shell="bash", command="/local/repository/bin/module-airplane.sh"))
 ue1.addService(pg.Execute(shell="bash", command="/local/repository/bin/setup-cots-ue.sh internet"))
+ue1.addService(pg.Execute(shell="bash", command=QUICHE_DEPLOY_SCRIPT))
 matrix_nodes[node_name] = ue1
 
 node_name = "ue2"
@@ -295,6 +297,7 @@ ue2.disk_image = COTS_UE_IMG
 ue2.Desire("rf-controlled", 1)
 ue2.addService(pg.Execute(shell="bash", command="/local/repository/bin/module-airplane.sh"))
 ue2.addService(pg.Execute(shell="bash", command="/local/repository/bin/setup-cots-ue.sh internet"))
+ue2.addService(pg.Execute(shell="bash", command=QUICHE_DEPLOY_SCRIPT))
 matrix_nodes[node_name] = ue2
 
 rf_ifaces = {}
