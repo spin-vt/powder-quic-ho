@@ -6,7 +6,7 @@ set -ex
 BINDIR=`dirname $0`
 source $BINDIR/common.sh
 
-if [ -f $SRCDIR/srs-setup-complete ]; then
+if [ -f $SRCDIR/quiche-setup-complete ]; then
   echo "setup already ran; not running again"
   exit 0
 fi
@@ -54,7 +54,7 @@ fi
 log "Step 3: Build quiche"
 # Build quiche
 cd $QUICHE_DIR
-cargo build --release
+cargo build --examples
 
 log "Step 4: Build successful"
 echo "The quiche library has been built successfully. The compiled files are located in 'target/release/'."
