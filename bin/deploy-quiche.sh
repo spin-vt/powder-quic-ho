@@ -43,12 +43,12 @@ QUICHE_DIR="$SRCDIR/quiche"
 
 cd $SRCDIR
 
-# Clone the quiche repository if it does not already exist
+# Clone the quiche repository with submodules if it does not already exist
 if [ ! -d "$QUICHE_DIR" ]; then
-    git clone $QUICHE_REPO_URL $QUICHE_DIR
+    git clone --recursive $QUICHE_REPO_URL $QUICHE_DIR
 else
-    log "Repository already cloned. Pulling latest changes..."
-    cd $QUICHE_DIR && git pull && cd ..
+    log "Repository already cloned. Updating submodules..."
+    cd $QUICHE_DIR && git pull && git submodule update --init --recursive && cd ..
 fi
 
 log "Step 3: Build quiche"
